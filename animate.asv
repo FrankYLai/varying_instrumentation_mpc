@@ -1,0 +1,13 @@
+function animate(car, dynamic, map, path)
+    % draw map
+    
+    %fill(xpoints+pos, ypoints, 'r');
+    
+    for obs = dynamic %draw dynamic obstacles
+        verticies, radius = obs.gen_verticies(obs.current_pos, obs.dim);
+        
+    end
+    
+    axis([-12 2 -5 5])
+    drawnow
+end
