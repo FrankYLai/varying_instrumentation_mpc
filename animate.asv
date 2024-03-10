@@ -1,13 +1,33 @@
-function animate(car, dynamic, map, path)
+function animate(configs, car, dynamic, map, path)
+
+
+    clf
+    hold on;
     % draw map
-    
-    %fill(xpoints+pos, ypoints, 'r');
-    
-    for obs = dynamic %draw dynamic obstacles
-        verticies, radius = obs.gen_verticies(obs.current_pos, obs.dim);
-        
+    map_shape = size(map);
+    for i=(1:map_shape(3))
+        fill(map(1,:,i), map(2,:,i), 'k');
     end
     
-    axis([-12 2 -5 5])
+    for obs = dynamic %draw dynamic obstacles
+
+        if obs.shape=="circle"
+            pos = obs.current_pose;
+            r = obs.dims(1);
+            th = 0:pi/50:2*pi;
+            xunit = r * cos(th) + pos(1);
+            yunit = r * sin(th) + pos(2);
+            plot(xunit, yunit);
+        else
+            [verticies, radius] = obs.gen_verticies(obs.current_pose, obs.dims);
+            fill(verticies(1,:), verticies(2,:), 'r');
+        end 
+    end
+    
+    %draw start and end goals
+    start = 
+    
+    axis(configs("canvas"))
     drawnow
+    hold off;
 end

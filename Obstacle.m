@@ -5,8 +5,9 @@ classdef Obstacle
     properties
         id
         inital_pose
+        shape
         dims
-        currnet_pose
+        current_pose
         
         gen_verticies
         pose
@@ -15,10 +16,6 @@ classdef Obstacle
     methods
       %init function
       function obj = Obstacle(id, init_pose, shape, dims, pose)
-        if not(all(init_pose>=0))
-            disp(["invalid pose", num2str(pose)])
-            return
-        end
         
         if shape == "rectangle"
             obj.gen_verticies = @obj.rectangular;
@@ -34,8 +31,9 @@ classdef Obstacle
         obj.dims = dims;
         obj.inital_pose = init_pose;
         obj.pose = pose;
+        obj.shape =  shape;
         
-        obj.currnet_pose = init_pose;
+        obj.current_pose = init_pose;
       end
      
       
@@ -50,28 +48,35 @@ classdef Obstacle
             w = dims(2);
             R = @(ang) [cos(ang), -sin(ang); sin(ang) cos(ang)];
             
-            %define points using offset
-            p1 = p(1:2) + [-w/2 h/2];
-            p2 = p(1:2) + [w/2 h/2];
-            p3 = p(1:2) + [w/2 -h/2];
-            p4 = p(1:2) + [-w/2 -h/2];
+            %define points using offset at 0
+            p1 = [-w/2 h/2];
+            p2 = [w/2 h/2];
+            p3 = [w/2 -h/2];
+            p4 = [-w/2 -h/2];
             pts = [p1;p2;p3;p4]';
             pts = R(p(3))*pts; %rotates the points
+            
+            %offset based on current position
+            pts = pts + p(1:2)';
             radius = sqrt((w/2)^2+(h/2)^2);
             
         end
         function [pts, radius] = triangular(pose, dims)
-            disp(dims)
             p = pose;
             b= dims(1);
             h = dims(2);
             R = @(ang) [cos(ang), -sin(ang); sin(ang) cos(ang)];
             
-            p1 = p(1:2) + [0, h/2];
-            p2 = p(1:2) + [-b/2, -h/2];
-            p3 = p(1:2) + [b/2, -h/2];
+            %define points using offset at 0
+            p1 = [0, h/2];
+            p2 = [-b/2, -h/2];
+            p3 = [b/2, -h/2];
             pts = [p1;p2;p3]';
-            pts = R(p(3))*pts;
+            pts = R(p(3))*pts; %rotate
+            
+            %offset based on current position
+            pts = pts + p(1:2)';
+            
             radius = sqrt((b/2)^2+(h/2)^2);
             
         end
