@@ -1,4 +1,4 @@
-function animate(configs, car, dynamic, map, path)
+function animate(configs, car, dynamic, map, path, t)
 
 
     clf
@@ -12,14 +12,15 @@ function animate(configs, car, dynamic, map, path)
     for obs = dynamic %draw dynamic obstacles
 
         if obs.shape=="circle"
-            pos = obs.current_pose;
+            pos = obs.pose(obs, t);
             r = obs.dims(1);
             th = 0:pi/50:2*pi;
             xunit = r * cos(th) + pos(1);
             yunit = r * sin(th) + pos(2);
             fill(xunit, yunit, 'r');
         else
-            [verticies, radius] = obs.gen_verticies(obs.current_pose, obs.dims);
+            obs_pose = obs.pose(obs, t);
+            [verticies, radius] = obs.gen_verticies(obs_pose, obs.dims);
             fill(verticies(1,:), verticies(2,:), 'r');
         end 
     end

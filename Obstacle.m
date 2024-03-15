@@ -4,10 +4,9 @@ classdef Obstacle
     
     properties
         id
-        inital_pose
+        initial_pose
         shape
         dims
-        current_pose
         
         gen_verticies
         pose
@@ -29,17 +28,28 @@ classdef Obstacle
         
         obj.id = id;
         obj.dims = dims;
-        obj.inital_pose = init_pose;
-        obj.pose = pose;
+        obj.initial_pose = init_pose;
         obj.shape =  shape;
         
-        obj.current_pose = init_pose;
+        %pose update function:
+        if isa(pose,'function_handle')
+            obj.pose = pose;
+            
+        else
+            obj.pose = @obj.static_pose;
+        end
+      
       end
      
       
       
     end
     methods (Static)
+
+      %generic pose update(no movement)
+      function pose = static_pose(obs, t)
+          pose = obs.initial_pose;
+      end
       
       %verticies generator
       function [pts, radius] = rectangular(pose, dims)

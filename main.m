@@ -1,13 +1,17 @@
 configs = containers.Map;
-configs("canvas") = [-12 12 -10 10];
-configs("map") = 1;
-configs("start") = [-10,0,-pi/2];
-configs("end") = [10,0];
+configs("scene") = 1;
 
-obstacle = Obstacle("rectangle_example",[-3,-2,pi/3],'rectangle',[0.4,0.2],[]);
-obs2 = Obstacle("circle_example",[6,-6,0],'circle',[0.3],[]);
-obs3 = Obstacle("triangle_example",[5,6,pi/2],'triangle',[0.3,0.4],[]);
+if configs("scene") == 1
+    [obstacles, map, configs] = setup_scene1(configs);
+end
 
-map = Map(configs);
+%start simulation
+% tic;
+% while toc<40
+% %     disp(toc);
+%     animate(configs, [], obstacles, map, [], toc);
+% end
 
-animate(configs, [], [obstacle, obs2, obs3], map, [])
+for t = 1:0.05:10
+    animate(configs, [], obstacles, map, [], t);
+end
