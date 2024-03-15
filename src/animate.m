@@ -4,9 +4,11 @@ function animate(configs, car, dynamic, map, path, t)
     clf
     hold on;
     % draw map
-    map_shape = size(map);
-    for i=(1:map_shape(3))
-        fill(map(1,:,i), map(2,:,i), 'k');
+%     map_shape = size(map);
+    for obs = map %draw dynamic obstacles
+        obs_pose = obs.pose(obs, t);
+        verticies = obs.gen_verticies(obs_pose, obs.dims);
+        fill(verticies(1,:), verticies(2,:), 'k');
     end
     
     for obs = dynamic %draw dynamic obstacles

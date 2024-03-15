@@ -1,12 +1,13 @@
 addpath(genpath(pwd));
 
-
 configs = containers.Map;
 configs("scene") = 1;
 
 if configs("scene") == 1
     [obstacles, map, configs] = setup_scene1(configs);
 end
+
+% setup_ego(configs)
 
 % start simulation
 tic;

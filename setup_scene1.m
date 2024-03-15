@@ -7,23 +7,23 @@ function [obstacles, map, config_updated] = setup_scene1(configs)
     %define canvas size
     canvas = [-12 12 -10 10];
     config_updated("canvas") = canvas;
+    
+    %scene def to detect collisions
+    config_updated("obsList") = dynamicCapsuleList;
 
-    w_canvas = canvas(2) - canvas(1);
-    h_canvas = canvas(4) - canvas(3);
+%     w_canvas = canvas(2) - canvas(1);
+%     h_canvas = canvas(4) - canvas(3);
 
-    num_obs = 3;
-    map = zeros(2,4,num_obs);
-    %center rectangle points
-    pts = Obstacle.rectangular([4,0,0], [7,1]);
-    map(:,:,1) = pts;
-    pts = Obstacle.rectangular([-7,-6,0], [1,12]);
-    map(:,:,2) = pts;
-    pts = Obstacle.rectangular([-7,6,0], [1,12]);
-    map(:,:,3) = pts;
+    stat_obs1 = Obstacle(1,[4,0,0],'rectangle',[7,1],[]);
+    stat_obs2 = Obstacle(2,[-7,-6,0],'rectangle',[1,12],[]);
+    stat_obs3 = Obstacle(3,[-7,6,0],'rectangle',[1,12],[]);
+
+    map = [stat_obs1, stat_obs2, stat_obs3];
+
 
     %setup obstacles
-    obs1 = Obstacle("circle1",[-5,0,0],'rectangle',[0.5,0.5],@obs1_pose);
-    obs2 = Obstacle("circle2",[-3,0,0],'rectangle',[0.5,0.5],@obs2_pose);
+    obs1 = Obstacle("circle1",[-5,0,0],'circle',[0.5,0.5],@obs1_pose);
+    obs2 = Obstacle("circle2",[-3,0,0],'circle',[0.5,0.5],@obs2_pose);
 %     obs3 = Obstacle("circle_example",[6,-6,0],'circle',[0.3],NaN);
 %     obs4 = Obstacle("triangle_example",[5,6,pi/2],'triangle',[0.3,0.4],NaN);
 
