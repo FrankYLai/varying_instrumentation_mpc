@@ -1,3 +1,6 @@
+addpath(genpath(pwd));
+
+
 configs = containers.Map;
 configs("scene") = 1;
 
