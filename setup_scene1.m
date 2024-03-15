@@ -14,28 +14,32 @@ function [obstacles, map, config_updated] = setup_scene1(configs)
     num_obs = 3;
     map = zeros(2,4,num_obs);
     %center rectangle points
-    [pts, radius] = Obstacle.rectangular([0,0,0], [5,1]);
+    pts = Obstacle.rectangular([4,0,0], [7,1]);
     map(:,:,1) = pts;
-    [pts, radius] = Obstacle.rectangular([-4,-4,0], [5,1]);
+    pts = Obstacle.rectangular([-7,-6,0], [1,12]);
     map(:,:,2) = pts;
-    [pts, radius] = Obstacle.rectangular([-4,4,0], [5,1]);
+    pts = Obstacle.rectangular([-7,6,0], [1,12]);
     map(:,:,3) = pts;
 
     %setup obstacles
-    obs1 = Obstacle("rectangle_example",[-3,-2,pi/3],'rectangle',[0.4,0.2],@obs1_pose);
-    obs2 = Obstacle("circle_example",[6,-6,0],'circle',[0.3],NaN);
-    obs3 = Obstacle("triangle_example",[5,6,pi/2],'triangle',[0.3,0.4],NaN);
+    obs1 = Obstacle("circle1",[-5,0,0],'rectangle',[0.5,0.5],@obs1_pose);
+    obs2 = Obstacle("circle2",[-3,0,0],'rectangle',[0.5,0.5],@obs2_pose);
+%     obs3 = Obstacle("circle_example",[6,-6,0],'circle',[0.3],NaN);
+%     obs4 = Obstacle("triangle_example",[5,6,pi/2],'triangle',[0.3,0.4],NaN);
 
 
-    obstacles = [obs1, obs2, obs3];
+    obstacles = [obs1, obs2];
 end
 
 
 function pose = obs1_pose(obj, t)
-    diff = [0.5*sin(t/2), 2*cos(t), 0];
-    x = 2*sin(t/2) + obj.initial_pose(1);
-    y = obj.initial_pose(2);
-    theta = obj.initial_pose(3);
+    diff = [0, 4*sin(t), 0];
+
+    pose = diff + obj.initial_pose;
+end
+
+function pose = obs2_pose(obj, t)
+    diff = [0, -4*sin(t/2), 0];
 
     pose = diff + obj.initial_pose;
 end

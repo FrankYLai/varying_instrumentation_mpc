@@ -10,19 +10,9 @@ function animate(configs, car, dynamic, map, path, t)
     end
     
     for obs = dynamic %draw dynamic obstacles
-
-        if obs.shape=="circle"
-            pos = obs.pose(obs, t);
-            r = obs.dims(1);
-            th = 0:pi/50:2*pi;
-            xunit = r * cos(th) + pos(1);
-            yunit = r * sin(th) + pos(2);
-            fill(xunit, yunit, 'r');
-        else
-            obs_pose = obs.pose(obs, t);
-            [verticies, radius] = obs.gen_verticies(obs_pose, obs.dims);
-            fill(verticies(1,:), verticies(2,:), 'r');
-        end 
+        obs_pose = obs.pose(obs, t);
+        verticies = obs.gen_verticies(obs_pose, obs.dims);
+        fill(verticies(1,:), verticies(2,:), 'r');
     end
     
     %draw start and end goals

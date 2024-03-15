@@ -52,7 +52,7 @@ classdef Obstacle
       end
       
       %verticies generator
-      function [pts, radius] = rectangular(pose, dims)
+      function pts = rectangular(pose, dims)
             p = pose;
             h= dims(1);
             w = dims(2);
@@ -68,10 +68,9 @@ classdef Obstacle
             
             %offset based on current position
             pts = pts + p(1:2)';
-            radius = sqrt((w/2)^2+(h/2)^2);
             
         end
-        function [pts, radius] = triangular(pose, dims)
+        function pts = triangular(pose, dims)
             p = pose;
             b= dims(1);
             h = dims(2);
@@ -87,15 +86,18 @@ classdef Obstacle
             %offset based on current position
             pts = pts + p(1:2)';
             
-            radius = sqrt((b/2)^2+(h/2)^2);
-            
         end
-        function [pts, radius] = circular(pose, dims)
+        function pts = circular(pose, dims)
             p = pose;
-            [r] = dims;
+            r = dims(1);
             
-            pts = [];
-            radius = r;
+            %larger the circle more points to use to draw it
+            divisions = r*20;
+            th = 0:pi/divisions:2*pi;
+            xunit = r * cos(th);
+            yunit = r * sin(th);
+            
+            pts = [xunit;yunit] + p(1:2)';
         end
     end
 end
