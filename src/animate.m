@@ -6,13 +6,13 @@ function animate(configs, car, dynamic, map, path, t)
     % draw map
 %     map_shape = size(map);
     for obs = map %draw dynamic obstacles
-        obs_pose = obs.pose(obs, t);
+        obs_pose = obs.current_pose;
         verticies = obs.gen_verticies(obs_pose, obs.dims);
         fill(verticies(1,:), verticies(2,:), 'k');
     end
     
     for obs = dynamic %draw dynamic obstacles
-        obs_pose = obs.pose(obs, t);
+        obs_pose = obs.current_pose;
         verticies = obs.gen_verticies(obs_pose, obs.dims);
         fill(verticies(1,:), verticies(2,:), 'r');
     end
@@ -21,11 +21,11 @@ function animate(configs, car, dynamic, map, path, t)
     end_pos = configs("end");
     start_pos = configs("start");
     
-    plot(start_pos(1),start_pos(2),'bo')
-    plot(end_pos(1),end_pos(2),'g*')
+    plot(start_pos(1),start_pos(2),'bo');
+    plot(end_pos(1),end_pos(2),'g*');
     
     
-    axis(configs("canvas"))
-    drawnow
+    axis(configs("canvas"));
+    drawnow;
     hold off;
 end

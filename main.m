@@ -1,3 +1,6 @@
+clear;
+clc;
+
 addpath(genpath(pwd));
 
 configs = containers.Map;
@@ -9,11 +12,38 @@ end
 
 % setup_ego(configs)
 
+%reference only dummy ego vehicle for collision logic
+egoID1 = 1;
+geom = struct("Length",0.01,"Radius",1,"FixedTransform",eye(3));
+states = configs("start");
+egoCapsule1 = struct('ID',egoID1,'States',states,'Geometry',geom);
+addEgo(configs("obsList"),egoCapsule1);
+
 % start simulation
 tic;
 while toc<40
-%     disp(toc);
-    animate(configs, [], obstacles, map, [], toc);
+
+    %update obstacle position
+    for i = 1:size(obstacles)+1
+        obstacles(i) = obstacles(i).updatePose(toc, configs);
+    end
+    
+    %reference only collision logic
+    states = states + [toc*0.2,0,0];
+    egoCapsule1.States = states;
+    updateEgoPose(configs("obsList"),1,egoCapsule1);
+    collisions = checkCollision(configs("obsList"))';
+    if any(collisions)
+        disp("collide")
+    end
+
+%     figure(1)
+%     animate(configs, [], obstacles, map, [], toc);
+
+    %obstacle representation debugging purposes only
+    figure(2)
+    show(configs("obsList"));
+    axis(configs("canvas"));
 end
 
 % for t = 1:0.1:10
