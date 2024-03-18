@@ -126,5 +126,12 @@ classdef Car
                 obj.x_dot(1) = max(0, current_velocity + desired_acceleration * dt); % Ensure velocity doesn't go negative
             end
         end
+        
+        function obj = control_wheel_acceleration(obj, left_wheel_acceleration, right_wheel_acceleration, dt)
+            current_lw_speed = obj.wheel_speed(1);
+            current_rw_speed = obj.wheel_speed(2);
+            obj.wheel_speed(1) = current_lw_speed + left_wheel_acceleration * dt;
+            obj.wheel_speed(2) = current_rw_speed + right_wheel_acceleration * dt;
+        end
     end
 end
