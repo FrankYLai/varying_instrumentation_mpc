@@ -117,5 +117,14 @@ classdef Car
             obj.get_transformed_pts();
             points = obj.car_points;
         end
+        
+        function obj = control_acceleration(obj, desired_acceleration, dt)
+            current_velocity = obj.x_dot(1);
+            if desired_acceleration >= 0
+                obj.x_dot(1) = current_velocity + desired_acceleration * dt;
+            else
+                obj.x_dot(1) = max(0, current_velocity + desired_acceleration * dt); % Ensure velocity doesn't go negative
+            end
+        end
     end
 end
