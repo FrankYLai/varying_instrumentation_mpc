@@ -10,14 +10,7 @@ if configs("scene") == 1
     [obstacles, map, configs] = setup_scene1(configs);
 end
 
-% setup_ego(configs)
-
-%reference only dummy ego vehicle for collision logic
-egoID1 = 1;
-geom = struct("Length",0.01,"Radius",1,"FixedTransform",eye(3));
-states = configs("start");
-egoCapsule1 = struct('ID',egoID1,'States',states,'Geometry',geom);
-addEgo(configs("obsList"),egoCapsule1);
+Car  = setup_ego(configs);
 
 % start simulation
 tic;
