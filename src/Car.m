@@ -12,14 +12,14 @@ classdef Car
     end
     
     methods
-        function obj = Car(initial_x, initial_y, initial_theta)
+        function obj = Car(initial_x, initial_y, initial_theta, initial_b, initial_r)
             obj.x = initial_x;
             obj.y = initial_y;
             obj.theta = initial_theta;
             obj.x_dot = [0; 0; 0];
             obj.wheel_speed = [0; 0];
-            obj.b = 25;
-            obj.r = 5;
+            obj.b = initial_b;
+            obj.r = initial_r;
             obj.car_dims = [
                 -obj.b, -obj.b, 1;
                 0     , -obj.b, 1;
@@ -98,8 +98,8 @@ classdef Car
         
         function obj = get_transformed_pts(obj)
             rot_mat = [
-                cos(obj.x(3, 1)), sin(obj.x(3, 1)), obj.x(1, 1);
-                -sin(obj.x(3, 1)), cos(obj.x(3, 1)), obj.x(2, 1);
+                cos(obj.x), sin(obj.y), obj.theta;
+                -sin(obj.x), cos(obj.y), obj.theta;
                 0, 0, 1
             ];
             obj.car_points = obj.car_dims*rot_mat';
