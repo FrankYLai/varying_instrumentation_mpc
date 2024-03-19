@@ -22,21 +22,21 @@ while toc<40
     end
     
     %reference only collision logic
-    states = states + [toc*0.2,0,0];
-    egoCapsule1.States = states;
-    updateEgoPose(configs("obsList"),1,egoCapsule1);
     collisions = checkCollision(configs("obsList"))';
     if any(collisions)
         disp("collide")
     end
 
-%     figure(1)
-%     animate(configs, [], obstacles, map, [], toc);
-
+    figure(1)
+    animate(configs, Car, obstacles, map, [], toc);
+    break;
     %obstacle representation debugging purposes only
-    figure(2)
-    show(configs("obsList"));
-    axis(configs("canvas"));
+%     states = states + [toc*0.2,0,0];
+%     egoCapsule1.States = states;
+%     updateEgoPose(configs("obsList"),1,egoCapsule1);
+%     figure(2)
+%     show(configs("obsList"));
+%     axis(configs("canvas"));
 end
 
 % for t = 1:0.1:10

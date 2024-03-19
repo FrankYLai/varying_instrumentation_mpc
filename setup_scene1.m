@@ -1,7 +1,7 @@
 function [obstacles, map, config_updated] = setup_scene1(configs)
     config_updated = configs;
     %define start and end point
-    config_updated("start") = [-10,0,-pi/2];
+    config_updated("start") = [-10,0,0];
     config_updated("end") = [10,0];
 
     %define canvas size

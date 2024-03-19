@@ -20,14 +20,19 @@ classdef Car
             obj.wheel_speed = [0; 0];
             obj.b = initial_b;
             obj.r = initial_r;
+
+            % triangular car
             obj.car_dims = [
                 -obj.b, -obj.b, 1;
                 0     , -obj.b, 1;
                 obj.b,      0, 1;
                 0,       obj.b, 1;
-                -obj.b, obj.b, 1
-            ];
-            obj.get_transformed_pts();
+                -obj.b, obj.b, 1;
+
+            ]; 
+
+            obj = obj.get_transformed_pts();
+            
         end
         
         function obj = set_wheel_velocity(obj, lw_speed, rw_speed) %sets wheel speed for right and left wheels
@@ -98,12 +103,11 @@ classdef Car
         
         function obj = get_transformed_pts(obj)
             rot_mat = [
-                cos(obj.x), sin(obj.y), obj.theta;
-                -sin(obj.x), cos(obj.y), obj.theta;
+                cos(obj.theta), sin(obj.theta), obj.x;
+                -sin(obj.theta), cos(obj.theta), obj.y;
                 0, 0, 1
             ];
             obj.car_points = obj.car_dims*rot_mat';
-            obj.car_points = int64(obj.car_points);
         end
         
         function points = get_points(obj)
