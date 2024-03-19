@@ -1,7 +1,9 @@
 classdef Car
     properties
-        x
-        x_dot
+        x       % x-position
+        y       % y-position
+        theta   % heading angle
+        x_dot   % velocity
         wheel_speed
         b
         r
@@ -10,21 +12,12 @@ classdef Car
     end
     
     methods
-        function obj = Car(x, y)
-            obj.x = [
-                x;
-                y;
-                0
-            ];
-            obj.x_dot = [
-                0;
-                0;
-                0
-            ];
-            obj.wheel_speed = [
-                0;
-                0
-            ];
+        function obj = Car(initial_x, initial_y, initial_theta)
+            obj.x = initial_x;
+            obj.y = initial_y;
+            obj.theta = initial_theta;
+            obj.x_dot = [0; 0; 0];
+            obj.wheel_speed = [0; 0];
             obj.b = 25;
             obj.r = 5;
             obj.car_dims = [
@@ -37,7 +30,7 @@ classdef Car
             obj.get_transformed_pts();
         end
         
-        function obj = set_wheel_velocity(obj, lw_speed, rw_speed)
+        function obj = set_wheel_velocity(obj, lw_speed, rw_speed) %sets wheel speed for right and left wheels
             obj.wheel_speed = [
                 rw_speed;
                 lw_speed
