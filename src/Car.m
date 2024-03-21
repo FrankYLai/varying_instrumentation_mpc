@@ -1,21 +1,24 @@
 classdef Car
     properties
         x       % x-position
-        y       % y-position
-        theta   % heading angle
         x_dot   % velocity
         wheel_speed
         b
         r
         car_dims
         car_points
+
+        egoID
+        egoCapsule
+        geom
+
+        MAX_WHEEL_ROT_SPEED_RAD = 2*pi; % Define MAX_WHEEL_ROT_SPEED_RAD
+        MIN_WHEEL_ROT_SPEED_RAD = -2*pi; % Define MIN_WHEEL_ROT_SPEED_RAD
     end
     
     methods
         function obj = Car(initial_x, initial_y, initial_theta, initial_b, initial_r)
-            obj.x = initial_x;
-            obj.y = initial_y;
-            obj.theta = initial_theta;
+            obj.x = [initial_x; initial_y; initial_theta];
             obj.x_dot = [0; 0; 0];
             obj.wheel_speed = [0; 0];
             obj.b = initial_b;
@@ -33,9 +36,15 @@ classdef Car
 
             obj = obj.get_transformed_pts();
             
+            %car capsul
+            obj.egoID = 1;
+            obj.geom = struct("Length",0.01,"Radius",obj.b,"FixedTransform",eye(3));
+            obj.egoCapsule = struct('ID',obj.egoID,'States',obj.x','Geometry',obj.geom);
+            
         end
         
         function obj = set_wheel_velocity(obj, lw_speed, rw_speed) %sets wheel speed for right and left wheels
+            
             obj.wheel_speed = [
                 rw_speed;
                 lw_speed
@@ -52,7 +61,7 @@ classdef Car
             obj.wheel_speed = obj.inverse_kinematics();
         end
         
-        function obj = update_state(obj, dt)
+        function x = update_state(obj, dt)
             A = [
                 1, 0, 0;
                 0, 1, 0;
@@ -67,17 +76,17 @@ classdef Car
                 obj.x_dot(1, 1);
                 obj.x_dot(3, 1)
             ];
-            obj.x = A*obj.x + B*vel;
+            x = A*obj.x + B*vel;
         end
         
         function obj = update(obj, dt)
-            MAX_WHEEL_ROT_SPEED_RAD = 0; % Define MAX_WHEEL_ROT_SPEED_RAD
-            MIN_WHEEL_ROT_SPEED_RAD = 0; % Define MIN_WHEEL_ROT_SPEED_RAD
-            obj.wheel_speed(obj.wheel_speed > MAX_WHEEL_ROT_SPEED_RAD) = MAX_WHEEL_ROT_SPEED_RAD;
-            obj.wheel_speed(obj.wheel_speed < MIN_WHEEL_ROT_SPEED_RAD) = MIN_WHEEL_ROT_SPEED_RAD;
+            obj.wheel_speed(obj.wheel_speed > obj.MAX_WHEEL_ROT_SPEED_RAD) = obj.MAX_WHEEL_ROT_SPEED_RAD;
+            obj.wheel_speed(obj.wheel_speed < obj.MIN_WHEEL_ROT_SPEED_RAD) = obj.MIN_WHEEL_ROT_SPEED_RAD;
             obj.x_dot = obj.forward_kinematics();
-            obj.update_state(dt);
+            obj.x = obj.update_state(dt);
             obj.wheel_speed = obj.inverse_kinematics();
+
+            obj.egoCapsule.States = obj.x';
         end
         
         function state = get_state(obj)
@@ -103,15 +112,15 @@ classdef Car
         
         function obj = get_transformed_pts(obj)
             rot_mat = [
-                cos(obj.theta), sin(obj.theta), obj.x;
-                -sin(obj.theta), cos(obj.theta), obj.y;
+                cos(obj.x(3)), sin(obj.x(3)), obj.x(1);
+                -sin(obj.x(3)), cos(obj.x(3)), obj.x(2);
                 0, 0, 1
             ];
             obj.car_points = obj.car_dims*rot_mat';
         end
         
         function points = get_points(obj)
-            obj.get_transformed_pts();
+            obj = obj.get_transformed_pts();
             points = obj.car_points;
         end
         

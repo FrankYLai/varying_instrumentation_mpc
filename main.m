@@ -10,15 +10,20 @@ if configs("scene") == 1
     [obstacles, map, configs] = setup_scene1(configs);
 end
 
-Car  = setup_ego(configs);
+car  = setup_ego(configs);
+car = car.set_wheel_velocity(1000,1000);
+
 
 % start simulation
-tic;
-while toc<40
+% tic;
+dt = 0.1;
+for t = 0:dt:10
 
     %update obstacle position
+    car = car.update(dt);
+    % car.x
     for i = 1:size(obstacles)+1
-        obstacles(i) = obstacles(i).updatePose(toc, configs);
+        obstacles(i) = obstacles(i).updatePose(t, configs);
     end
     
     %reference only collision logic
@@ -28,8 +33,13 @@ while toc<40
     end
 
     figure(1)
-    animate(configs, Car, obstacles, map, [], toc);
-    break;
+    animate(configs, car, obstacles, map, [], t);
+
+    updateEgoPose(configs("obsList"),car.egoID,car.egoCapsule);
+    figure(2)
+    show(configs("obsList"));
+    axis(configs("canvas"));
+    break
     %obstacle representation debugging purposes only
 %     states = states + [toc*0.2,0,0];
 %     egoCapsule1.States = states;
@@ -38,7 +48,3 @@ while toc<40
 %     show(configs("obsList"));
 %     axis(configs("canvas"));
 end
-
-% for t = 1:0.1:10
-%     animate(configs, [], obstacles, map, [], t);
-% end

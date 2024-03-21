@@ -1,10 +1,13 @@
 function animate(configs, car, dynamic, map, path, t)
-
-
     clf
     hold on;
-    % draw map
-%     map_shape = size(map);
+
+    %draw start and end goals
+    end_pos = configs("end");
+    start_pos = configs("start");
+    
+    plot(start_pos(1),start_pos(2),'bo');
+    plot(end_pos(1),end_pos(2),'g*');
 
     for obs = map %draw static obstacles
         obs_pose = obs.current_pose;
@@ -19,16 +22,8 @@ function animate(configs, car, dynamic, map, path, t)
     end
 
     %draw car:
-    verticies = car.car_points(:,1:2);
-    fill(verticies(:,1), verticies(:,2), 'g');
-
-    
-    %draw start and end goals
-    end_pos = configs("end");
-    start_pos = configs("start");
-    
-    plot(start_pos(1),start_pos(2),'bo');
-    plot(end_pos(1),end_pos(2),'g*');
+    points = car.get_points();
+    fill(points(:,1), points(:,2), 'g');
     
     
     axis(configs("canvas"));
