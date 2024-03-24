@@ -15,8 +15,8 @@ car = car.set_wheel_velocity(1000,1000);
 
 
 % start simulation
-% tic;
-dt = 0.1;
+tic;
+dt = 0.05;
 for t = 0:dt:10
 
     %update obstacle position
@@ -27,19 +27,18 @@ for t = 0:dt:10
     end
     
     %reference only collision logic
+    updateEgoPose(configs("obsList"),car.egoID,car.egoCapsule);
     collisions = checkCollision(configs("obsList"))';
     if any(collisions)
         disp("collide")
     end
 
-    figure(1)
-    animate(configs, car, obstacles, map, [], t);
+    % figure(1)
+    % animate(configs, car, obstacles, map, [], t);
 
-    updateEgoPose(configs("obsList"),car.egoID,car.egoCapsule);
-    figure(2)
-    show(configs("obsList"));
-    axis(configs("canvas"));
-    break
+    % figure(2)
+    % show(configs("obsList"));
+    % axis(configs("canvas"));
     %obstacle representation debugging purposes only
 %     states = states + [toc*0.2,0,0];
 %     egoCapsule1.States = states;
@@ -48,3 +47,5 @@ for t = 0:dt:10
 %     show(configs("obsList"));
 %     axis(configs("canvas"));
 end
+
+toc

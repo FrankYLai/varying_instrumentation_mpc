@@ -139,5 +139,38 @@ classdef Car
             obj.wheel_speed(1) = current_lw_speed + left_wheel_acceleration * dt;
             obj.wheel_speed(2) = current_rw_speed + right_wheel_acceleration * dt;
         end
+
+        % function c = cost_dist(obj, static_obs, dynamic_obs)
+        %     c = 0;
+        %     x = obj.x(1:2);
+        %     for obs =  static_obs
+        %         obs_pose = obs.current_pose;
+        %         verticies = obs.gen_verticies(obs_pose, obs.dims);
+        %         min = 100;
+        %         for i = verticies:
+        %     end
+        % end
+        
+
+    end
+
+    methods (Static)
+        function dist = point_to_line(pt, v1, v2)
+            a = v1 - v2;
+            b = pt - v2;
+            line_vec = a ;%vector(start, end) # (3.5, 0, -1.5)
+            pnt_vec = b ;%vector(start, pnt)  # (1, 0, -1.5)
+            line_len = sqrt(sum(line_vec.^2)); % # 3.808
+            line_unitvec = line_vec/line_len; % # (0.919, 0.0, -0.394)
+            pnt_vec_scaled = pnt_vec/line_len; %  # (0.263, 0.0, -0.393)
+            t = dot(line_unitvec, pnt_vec_scaled); % # 0.397
+            if t < 0.0
+                t = 0.0;
+            elseif t > 1.0
+                t = 1.0;
+            end
+            nearest = line_vec* t; %    # (1.388, 0.0, -0.595)
+            dist = sqrt(sum((nearest-pnt_vec).^2));% # 0.985
+        end
     end
 end
