@@ -13,10 +13,10 @@ end
 car  = setup_ego(configs);
 car = car.set_wheel_velocity(1000,1000);
 
-
+costs = [0];
 % start simulation
 tic;
-dt = 0.05;
+dt = 0.04;
 for t = 0:dt:10
 
     %update obstacle position
@@ -29,12 +29,16 @@ for t = 0:dt:10
     %reference only collision logic
     updateEgoPose(configs("obsList"),car.egoID,car.egoCapsule);
     collisions = checkCollision(configs("obsList"))';
+    cost = car.cost_dist(map, obstacles);
+    costs = [costs, cost];
     if any(collisions)
         disp("collide")
     end
 
     % figure(1)
     % animate(configs, car, obstacles, map, [], t);
+    % figure(3)
+    % plot(costs)
 
     % figure(2)
     % show(configs("obsList"));
