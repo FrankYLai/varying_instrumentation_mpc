@@ -4,7 +4,7 @@ clc;
 addpath(genpath(pwd));
 
 configs = containers.Map;
-configs("scene") = 2;
+configs("scene") = 1;
 
 if configs("scene") == 1
     [obstacles, map, configs] = setup_scene1(configs);
@@ -32,13 +32,19 @@ for t = 0:dt:10
     end
     
     %reference only collision logic
-    updateEgoPose(configs("obsList"),car.egoID,car.egoCapsule);
-    collisions = checkCollision(configs("obsList"))';
+    % updateEgoPose(configs("obsList"),car.egoID,car.egoCapsule);
+    % collisions = checkCollision(configs("obsList"))';
     cost = car.cost_dist(map, obstacles);
-    costs = [costs, cost];
-    if any(collisions)
-        disp("collide")
+    [cross_section, collision_objs] = car.checkCollision(map, obstacles);
+    if cross_section>0
+        figure(2)
+        plot(collision_objs)
+        axis(configs("canvas"));
     end
+    costs = [costs, cost];
+    % if any(collisions)
+    %     disp("collide")
+    % end
 
     figure(1)
     animate(configs, car, obstacles, map, [], t);

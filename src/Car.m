@@ -152,7 +152,23 @@ classdef Car
                 end
             end
         end
-        
+
+        function [cross_section, collision_objs] = checkCollision(obj, static_obs, dynamic_obs)
+            pts_ego = obj.get_points();
+            poly_ego = polyshape(pts_ego(:,1), pts_ego(:,2));
+            collision_objs = [];
+            cross_section = 0;
+
+            for obs = [static_obs,dynamic_obs]
+                pts_obs = obs.gen_verticies(obs.current_pose, obs.dims);
+                poly_obs = polyshape(pts_obs(1,:), pts_obs(2,:));
+                polyout = intersect(poly_ego,poly_obs);
+                cross_section = cross_section + area(polyout);
+
+                collision_objs = [collision_objs, polyout];
+
+            end
+        end
 
     end
 
