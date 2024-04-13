@@ -8,9 +8,6 @@ function [obstacles, map, config_updated] = setup_scene1(configs)
     canvas = [-12 12 -10 10];
     config_updated("canvas") = canvas;
     
-    %scene def to detect collisions
-    config_updated("obsList") = dynamicCapsuleList;
-    
 
     stat_obs1 = Obstacle(1,[4,0,pi/2],'rectangle',[7,1],[]);
     stat_obs2 = Obstacle(2,[-7,-6,0],'rectangle',[12,1],[]);
@@ -18,9 +15,6 @@ function [obstacles, map, config_updated] = setup_scene1(configs)
     
     %add static obstacles to list
     map = [stat_obs1, stat_obs2, stat_obs3];
-    for wall = map
-        addObstacle(config_updated("obsList"),wall.obsCapsule);
-    end
 
 
     %setup obstacles
@@ -30,10 +24,6 @@ function [obstacles, map, config_updated] = setup_scene1(configs)
 %     obs4 = Obstacle("triangle_example",[5,6,pi/2],'triangle',[0.3,0.4],NaN);
     obstacles = [obs1, obs2];
     
-    %add dynamic obstacles to list
-    for obs = obstacles
-        addObstacle(config_updated("obsList"),obs.obsCapsule);
-    end
 
 end
 

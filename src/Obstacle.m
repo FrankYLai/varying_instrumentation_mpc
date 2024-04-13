@@ -7,7 +7,6 @@ classdef Obstacle
         initial_pose
         shape
         dims
-        obsCapsule
         current_pose
         
         gen_verticies
@@ -17,7 +16,6 @@ classdef Obstacle
     methods
       %init function
       function obj = Obstacle(id, init_pose, shape, dims, pose)
-        geom = [];
         
         if shape == "rectangle"
             %redefine so that height length>width
@@ -27,15 +25,11 @@ classdef Obstacle
                 dims(2) = t;
                 init_pose(3) = init_pose(3)+pi/2;
             end
-            transform = eye(3);
-            transform(1,3) = -dims(1)/2;
-            geom = struct("Length",dims(1),"Radius",dims(2)/2,"FixedTransform",transform);
             
             obj.gen_verticies = @obj.rectangular;
         elseif shape == "triangle"
             obj.gen_verticies = @obj.triangular;
         elseif shape == "circle"
-            geom = struct("Length",0.01,"Radius",dims(1),"FixedTransform",eye(3));
             obj.gen_verticies = @obj.circular;
         else
             disp(["invalid shape", shape])
@@ -46,9 +40,6 @@ classdef Obstacle
         obj.initial_pose = init_pose;
         obj.shape =  shape;
         obj.current_pose = init_pose;
-
-        %maintain obs capsul to check for collisions
-        obj.obsCapsule = struct('ID',id,'States',init_pose,'Geometry',geom);
         
         %pose update function:
         if isa(pose,'function_handle')
@@ -60,10 +51,8 @@ classdef Obstacle
       end
      
       %run to update the position of an obstacle
-      function obj = updatePose(obj, t, configs)
+      function obj = updatePose(obj, t)
           pose_update = obj.pose(obj, t);
-          obj.obsCapsule.States = pose_update;
-          updateObstaclePose(configs("obsList"), obj.id, obj.obsCapsule);
           obj.current_pose = pose_update;
       end
       

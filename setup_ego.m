@@ -5,8 +5,5 @@ function car = setup_ego(configs)
     
     car = Car(states(1),states(2),states(3),configs("car_b"),configs("car_r"));
     
-    %reference only for collision logic
-
-    addEgo(configs("obsList"),car.egoCapsule);
 end
 

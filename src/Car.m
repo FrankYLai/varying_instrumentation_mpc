@@ -9,8 +9,6 @@ classdef Car
         car_points
 
         egoID
-        egoCapsule
-        geom
 
         MAX_WHEEL_ROT_SPEED_RAD = 2*pi; % Define MAX_WHEEL_ROT_SPEED_RAD
         MIN_WHEEL_ROT_SPEED_RAD = -2*pi; % Define MIN_WHEEL_ROT_SPEED_RAD
@@ -38,8 +36,6 @@ classdef Car
             
             %car capsul
             obj.egoID = 1;
-            obj.geom = struct("Length",0.01,"Radius",obj.b,"FixedTransform",eye(3));
-            obj.egoCapsule = struct('ID',obj.egoID,'States',obj.x','Geometry',obj.geom);
             
         end
         
@@ -85,8 +81,6 @@ classdef Car
             obj.x_dot = obj.forward_kinematics();
             obj.x = obj.update_state(dt);
             obj.wheel_speed = obj.inverse_kinematics();
-
-            obj.egoCapsule.States = obj.x';
         end
         
         function state = get_state(obj)
@@ -158,19 +152,18 @@ classdef Car
 
             pts_ego = obj.get_points();
             poly_ego = polyshape(pts_ego(:,1), pts_ego(:,2));
-            collision_objs = repmat(polyshape(), 1, numel(obs_arry));
+            collision_objs = [];
             cross_section = 0;
-            
-            idx = 1;
+            % pts_obs = obs_arry(1).gen_verticies(obs_arry(1).current_pose, obs_arry(1).dims);
+            % poly_obs = polyshape(pts_obs(1,:), pts_obs(2,:));
             for obs = obs_arry
                 pts_obs = obs.gen_verticies(obs.current_pose, obs.dims);
                 poly_obs = polyshape(pts_obs(1,:), pts_obs(2,:));
                 polyout = intersect(poly_ego,poly_obs);
                 cross_section = cross_section + area(polyout);
-
-                collision_objs(idx) = polyout;
-                idx = idx+1;
-
+                if area(polyout)>0
+                    collision_objs =  polyout;
+                end
             end
         end
 
