@@ -28,6 +28,29 @@ for t = 0:dt:10000
     for i = 1:size(obstacles)+1
         obstacles(i) = obstacles(i).updatePose(t);
     end
+
+     %% MPC Stuff
+    for t_current = 0:Ts:tfinal
+        % Run our trajectory optimization
+        wstar = quadprog(Hfunc(x0,qfinal), cfunc(x0,qfinal), ...
+            Afunc(x0,qfinal), bfunc(x0,qfinal), ...
+            Aeqfunc(x0,qfinal), beqfunc(x0,qfinal));
+        % Grabs the first control input from u(t)
+        F = wstar(1);
+        % Run simulation for Ts seconds with our optimized
+        % control input, F
+        %     dyn2 = @(t,x,F) [x(2); F/p.m]; % Defines our dynamics
+        %     dynamics = @(t,x) dyn2(t,x,F);
+        dyn = @(t,q) dynamics(t,q,u);
+        %     [tout, xout] = ode45(dyn,[0 Ts],x0); % Simulation
+        [tout, qout] = ode45(dyn, t_span, q0);
+        % Store times, states
+        t_store = [t_store; tout+t_current];
+        x_store = [x_store; xout];
+        u_store = [u_store; ones(size(tout))*F];
+        % Resample our state
+        x0 = xout(end,:).';
+    end
     
     %reference only collision logic
     cost = car.cost_dist(map, obstacles);
