@@ -6,12 +6,13 @@ classdef Car
         b
         r
         car_dims
-        car_points
 
-        egoID
+        mpc
+        MAX_WHEEL_ROT_SPEED_RAD = 4*pi; % Define MAX_WHEEL_ROT_SPEED_RAD
+        MIN_WHEEL_ROT_SPEED_RAD = -4*pi; % Define MIN_WHEEL_ROT_SPEED_RAD
 
-        MAX_WHEEL_ROT_SPEED_RAD = 2*pi; % Define MAX_WHEEL_ROT_SPEED_RAD
-        MIN_WHEEL_ROT_SPEED_RAD = -2*pi; % Define MIN_WHEEL_ROT_SPEED_RAD
+        MAX_WHEEL_ROT_ACCEL_RAD = 2*pi;
+        MIN_WHEEL_ROT_ACCEL_RAD = -2*pi; % Define MIN_WHEEL_ROT_SPEED_RAD
     end
     
     methods
@@ -22,7 +23,7 @@ classdef Car
             obj.b = initial_b;
             obj.r = initial_r;
 
-            % triangular car
+            % pentagon car
             obj.car_dims = [
                 -obj.b, -obj.b, 1;
                 0     , -obj.b, 1;
@@ -31,14 +32,30 @@ classdef Car
                 -obj.b, obj.b, 1;
 
             ]; 
-
-            obj = obj.get_transformed_pts();
             
-            %car capsul
-            obj.egoID = 1;
-            
+            lb = [-inf, -inf, -inf, obj.MIN_WHEEL_ROT_SPEED_RAD, obj.MIN_WHEEL_ROT_SPEED_RAD];
+            ub = [inf, inf, inf, obj.MAX_WHEEL_ROT_SPEED_RAD, obj.MAX_WHEEL_ROT_SPEED_RAD];
+            lb_u = [obj.MIN_WHEEL_ROT_ACCEL_RAD, obj.MIN_WHEEL_ROT_ACCEL_RAD];
+            ub_u = [obj.MAX_WHEEL_ROT_ACCEL_RAD, obj.MAX_WHEEL_ROT_ACCEL_RAD];
+            obj.mpc = MPC(lb, ub, lb_u, ub_u);   
         end
         
+        function dq = dynamics(obj, t, q, u)
+            % Store parameters
+            th = q(5,:);
+            phi_dot_L = q(7,:);
+            phi_dot_R = q(8,:);
+            phi_ddot_L = u(1,:);
+            phi_ddot_R = u(2,:);
+            % Define our derivatives
+            dq = zeros(size(q)); % Pre-allocating
+            dq(1,:) = obj.r/2*(phi_dot_L + phi_dot_R)*cos(th);
+            dq(2,:) = obj.r/2*(phi_dot_L + phi_dot_R)*sin(th);
+            dq(3,:) = obj.r/L*(phi_dot_L + phi_dot_R);
+            dq(4,:) = phi_ddot_L;
+            dq(5,:) = phi_ddot_R;
+        end
+
         function obj = set_wheel_velocity(obj, lw_speed, rw_speed) %sets wheel speed for right and left wheels
             
             obj.wheel_speed = [
@@ -104,18 +121,21 @@ classdef Car
             ikine = ikine_mat*obj.x_dot;
         end
         
-        function obj = get_transformed_pts(obj)
-            rot_mat = [
-                cos(obj.x(3)), sin(obj.x(3)), obj.x(1);
-                -sin(obj.x(3)), cos(obj.x(3)), obj.x(2);
-                0, 0, 1
-            ];
-            obj.car_points = obj.car_dims*rot_mat';
-        end
-        
-        function points = get_points(obj)
-            obj = obj.get_transformed_pts();
-            points = obj.car_points;
+        function car_points = get_points(obj, X, Y, Theta)
+            car_points = cell(numel(X),1);
+            for i = 1:numel(X)
+                x = X(i);
+                y = Y(i);
+                theta = Theta(i);
+                rot_mat = [
+                    cos(theta), sin(theta), x;
+                    -sin(theta), cos(theta), y;
+                    0, 0, 1
+                ];
+                car_points{i} = obj.car_dims*rot_mat';
+            end
+
+
         end
         
         function obj = control_acceleration(obj, desired_acceleration, dt)
@@ -147,25 +167,14 @@ classdef Car
             end
         end
 
-        function [cross_section, collision_objs] = checkCollision(obj, static_obs, dynamic_obs)
-            obs_arry = [static_obs,dynamic_obs];
-
-            pts_ego = obj.get_points();
-            poly_ego = polyshape(pts_ego(:,1), pts_ego(:,2));
-            collision_objs = [];
-            cross_section = 0;
-            % pts_obs = obs_arry(1).gen_verticies(obs_arry(1).current_pose, obs_arry(1).dims);
-            % poly_obs = polyshape(pts_obs(1,:), pts_obs(2,:));
-            for obs = obs_arry
-                pts_obs = obs.gen_verticies(obs.current_pose, obs.dims);
-                poly_obs = polyshape(pts_obs(1,:), pts_obs(2,:));
-                polyout = intersect(poly_ego,poly_obs);
-                cross_section = cross_section + area(polyout);
-                if area(polyout)>0
-                    collision_objs =  polyout;
-                end
-            end
+        function [raccel, laccel, states] = optimize(obj, goal, map, obstacles)
+            [u, states] = obj.mpc.optimize(obj, goal, map, obstacles);
+            raccel = u(:,1);
+            laccel = u(:,2);
         end
+
+
+
 
     end
 
