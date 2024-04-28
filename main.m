@@ -4,9 +4,12 @@ clc;
 addpath(genpath(pwd));
 
 configs = containers.Map;
-configs("scene") = 2;
+configs("scene") = 0;
 
-if configs("scene") == 1
+
+if configs("scene") == 0
+    [obstacles, map, configs] = setup_scene0(configs);
+elseif configs("scene") == 1
     [obstacles, map, configs] = setup_scene1(configs);
 elseif configs("scene") == 2
     [obstacles, map, configs] = setup_scene2(configs);
@@ -23,9 +26,8 @@ tic;
 dt = 0.04;
 for t = 0:dt:10000
     %update obstacle position
-    car = car.update(dt);
-    % car.x
-    for i = 1:size(obstacles)+1
+
+    for i = 1:size(obstacles,2)
         obstacles(i) = obstacles(i).updatePose(t);
     end
     
@@ -33,6 +35,7 @@ for t = 0:dt:10000
     cost = car.cost_dist(map, obstacles);
     % [cross_section, collision_objs] = car.checkCollision(map, obstacles);
     [raccel, laccel] = keyboard_accel_control();
+    car = car.step(raccel, laccel, dt, dt);
     % [raccel, laccel, states] = car.optimize(configs('end'), map, obstacles);
     % if cross_section>0
     %     % figure(2)
@@ -46,8 +49,6 @@ for t = 0:dt:10000
 
     figure(1)
     animate(configs, car, obstacles, map, [], t);
-
-    car = car.control_wheel_acceleration(raccel, laccel, dt);
 
     %obstacle representation debugging purposes only
     % figure(2)

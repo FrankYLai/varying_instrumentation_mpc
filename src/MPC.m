@@ -97,7 +97,7 @@ classdef MPC
             %defect constraints
             dq = car.dynamics(obj, [], q(1:end-1,:), u(1:end-1,:));
             defect = q(2,end) - q(1,end-1) - dq*obj.dt;
-            start_cond = q(1,:) - car.x;
+            start_cond = q(1,:) - car.q;
             Ceq = [defect; start_cond];
 
             C = [];

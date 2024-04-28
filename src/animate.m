@@ -22,9 +22,16 @@ function animate(configs, car, dynamic, map, path, t)
     end
 
     %draw car:
-    points = car.get_points(car.x(1), car.x(2), car.x(3));
+    points = car.get_points(car.q(1), car.q(2), car.q(3));
     points = points{1};
     fill(points(:,1), points(:,2), 'g');
+    center = [car.q(1), car.q(2)];
+    % plot circle at center
+    radius = 0.1; % adjust the radius as needed
+    theta = linspace(0, 2*pi, 100);
+    x = center(1) + radius*cos(theta);
+    y = center(2) + radius*sin(theta);
+    fill(x, y, 'r');
     
     
     axis(configs("canvas"));
