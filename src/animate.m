@@ -36,7 +36,7 @@ function animate(configs, car, dynamic, map, path, t)
     %plot path
     x = path(:,1);
     y = path(:,2);
-    plot(x, y, 'b');
+    plot(x, y, '-o');
     
     
     axis(configs("canvas"));

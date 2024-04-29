@@ -7,15 +7,19 @@ classdef Obstacle
         initial_pose
         shape
         dims
+        t
         current_pose
+    
         
         gen_verticies
         pose
+        predict_pose
     end
     
     methods
       %init function
-      function obj = Obstacle(id, init_pose, shape, dims, pose)
+      function obj = Obstacle(id, init_pose, shape, dims, pose, tracking)
+        obj.t = 0;
         
         if shape == "rectangle"
             %redefine so that height length>width
@@ -40,6 +44,7 @@ classdef Obstacle
         obj.initial_pose = init_pose;
         obj.shape =  shape;
         obj.current_pose = init_pose;
+
         
         %pose update function:
         if isa(pose,'function_handle')
@@ -47,13 +52,44 @@ classdef Obstacle
         else
             obj.pose = @obj.static_pose;
         end
+
+        %pose tracking function:
+        if tracking == "full"
+            obj.predict_pose = @obj.predict_pose_full;
+        elseif tracking == "simple"
+            obj.predict_pose = @obj.predict_pose_simple;
+        else
+            obj.predict_pose = @obj.predict_pose_none;
+        end
       
       end
      
       %run to update the position of an obstacle
       function obj = updatePose(obj, t)
-          pose_update = obj.pose(obj, t);
+          obj.t = t;
+          pose_update = obj.pose(obj, obj.t);
           obj.current_pose = pose_update;
+      end
+
+      function pose = predict_pose_full(obj,dt)
+            pose = obj.pose(obj, obj.t+dt);
+      end
+      
+      function pose = predict_pose_simple(obj,dt)
+        h = 0.05
+        pose_old = obj.pose(obj, obj.t-h);
+        diff = obj.current_pose - pose_old;
+        dx = diff(1)/h;
+        dy = diff(2)/h;
+        dtheta = diff(3)/h;
+
+        pose = [dx*dt + obj.current_pose(1), 
+                dy*dt + obj.current_pose(2), 
+                dtheta*dt + obj.current_pose(3)];
+      end
+
+      function pose = predict_pose_none(obj, dt)
+        pose = obj.current_pose;
       end
       
     end

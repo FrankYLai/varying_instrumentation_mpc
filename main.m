@@ -1,10 +1,12 @@
 clear;
 clc;
+close all;
 
 addpath(genpath(pwd));
 
 configs = containers.Map;
 configs("scene") = 0;
+configs("tracking") = "full";
 
 
 if configs("scene") == 0
@@ -23,8 +25,9 @@ car  = setup_ego(configs);
 costs = [0];
 % start simulation
 tic;
-dt = 0.04;
+dt = 0.1;
 for t = 0:dt:10000
+    t
     %update obstacle position
 
     for i = 1:size(obstacles,2)
@@ -32,12 +35,12 @@ for t = 0:dt:10000
     end
     
     %reference only collision logic
-    cost = car.cost_dist(map, obstacles);
+    % cost = car.cost_dist(map, obstacles);
     % [cross_section, collision_objs] = car.checkCollision(map, obstacles);
 %     [raccel, laccel] = keyboard_accel_control();
-    [raccel, laccel, path] = car.optimize(configs('end'), map, obstacles);
+    [u, path] = car.optimize(configs('end'), map, obstacles);
 
-    car = car.step(raccel, laccel, car.mpc.dt, dt);
+    car = car.step(u, car.mpc.dt, dt);
 
     % if cross_section>0
     %     % figure(2)
