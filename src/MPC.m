@@ -1,8 +1,8 @@
 classdef MPC
     properties
-        Th = 1;   % Prediction horizon
+        Th = 2;   % Prediction horizon
         optim_options = optimoptions('fmincon');
-        N_states = 11;    % Number of states
+        N_states = 21;    % Number of states
         N_vals = 5;
         N_inputs = 2;
 
@@ -39,7 +39,7 @@ classdef MPC
         function [u, x]= optimize(obj, car, goal, map, obstacles)
 
             % Define the cost function
-            cost_func_handle = @(w) obj.costfunc(car, w, goal, map, obstacles);
+            cost_func_handle = @(w) obj.costfunc(w, car, goal, map, obstacles);
 
             % Define the constraints
             nonlcon = @(w) obj.nonlcon(w, car, map, obstacles);
@@ -48,7 +48,7 @@ classdef MPC
             % Return the optimal control input and the optimal trajectory
 
             reshape_w = reshape(obj.w, obj.N_states, obj.N_vals+obj.N_inputs);
-            u = reshape_w(:,1:2);
+            u = reshape_w(:,1:2); %[L, R]
             x = reshape_w(:,3:end);
 
         end
@@ -64,10 +64,10 @@ classdef MPC
         end
         function cost = costfunc(obj, w, car, goal, static_obs, dynamic_obs)
             % Calculate the total cost of the MPC controller
-            vals = w.reshape(obj.N_states, obj.N_vals+obj.N_inputs);
+            vals = reshape(w, obj.N_states, obj.N_vals+obj.N_inputs);
             inputs = vals(:,1:2);
             states = vals(:,3:end);
-            cost =  cost_dist(w, states, goal) + cost_obstacle(states, car, static_obs, dynamic_obs);
+            cost =  obj.cost_dist(states, goal) + obj.cost_obstacle(states, car, static_obs, dynamic_obs);
         end
 
         function [cross_section, collision_objs] = checkCollision(obj, car, static_obs, dynamic_obs)
@@ -90,16 +90,16 @@ classdef MPC
 
         function [C, Ceq] = nonlcon(obj, w, car, static_obs, dynamic_obs)
             % Define the nonlinear constraints
-            vals = w.reshape(obj.N_states, obj.N_vals+obj.N_inputs);
+            vals = reshape(w, obj.N_states, obj.N_vals+obj.N_inputs);
             u = vals(:,1:2);
             q = vals(:,3:end);
             
             %defect constraints
-            dq = car.dynamics(obj, [], q(1:end-1,:), u(1:end-1,:));
-            defect = q(2,end) - q(1,end-1) - dq*obj.dt;
+            dq = car.dynamics([], q(1:end-1,:)', u(1:end-1,:)');
+            dq = dq';
+            defect = q(2:end,:) - q(1:end-1,:) - dq*obj.dt;
             start_cond = q(1,:) - car.q;
             Ceq = [defect; start_cond];
-
             C = [];
 
 

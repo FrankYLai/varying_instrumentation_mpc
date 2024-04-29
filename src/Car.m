@@ -48,8 +48,8 @@ classdef Car
             phi_ddot_R = u(2,:);
             % Define our derivatives
             dq = zeros(size(q)); % Pre-allocating
-            dq(1,:) = obj.r/2*(phi_dot_L + phi_dot_R)*cos(th);
-            dq(2,:) = obj.r/2*(phi_dot_L + phi_dot_R)*sin(th);
+            dq(1,:) = obj.r/2*(phi_dot_L + phi_dot_R).*cos(th);
+            dq(2,:) = obj.r/2*(phi_dot_L + phi_dot_R).*sin(th);
             dq(3,:) = obj.r/(obj.b*2)*(phi_dot_L - phi_dot_R);
             dq(4,:) = phi_ddot_L;
             dq(5,:) = phi_ddot_R;

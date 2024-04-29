@@ -34,9 +34,11 @@ for t = 0:dt:10000
     %reference only collision logic
     cost = car.cost_dist(map, obstacles);
     % [cross_section, collision_objs] = car.checkCollision(map, obstacles);
-    [raccel, laccel] = keyboard_accel_control();
-    car = car.step(raccel, laccel, dt, dt);
-    % [raccel, laccel, states] = car.optimize(configs('end'), map, obstacles);
+%     [raccel, laccel] = keyboard_accel_control();
+    [raccel, laccel, path] = car.optimize(configs('end'), map, obstacles);
+
+    car = car.step(raccel, laccel, car.mpc.dt, dt);
+
     % if cross_section>0
     %     % figure(2)
     %     % plot(collision_objs)
@@ -48,7 +50,7 @@ for t = 0:dt:10000
     % plot(costs)
 
     figure(1)
-    animate(configs, car, obstacles, map, [], t);
+    animate(configs, car, obstacles, map, path, t);
 
     %obstacle representation debugging purposes only
     % figure(2)

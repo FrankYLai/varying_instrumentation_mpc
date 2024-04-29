@@ -27,11 +27,16 @@ function animate(configs, car, dynamic, map, path, t)
     fill(points(:,1), points(:,2), 'g');
     center = [car.q(1), car.q(2)];
     % plot circle at center
-    radius = 0.1; % adjust the radius as needed
-    theta = linspace(0, 2*pi, 100);
+    radius = 0.1; 
+    theta = linspace(0, 2*pi, 25);
     x = center(1) + radius*cos(theta);
     y = center(2) + radius*sin(theta);
     fill(x, y, 'r');
+    
+    %plot path
+    x = path(:,1);
+    y = path(:,2);
+    plot(x, y, 'b');
     
     
     axis(configs("canvas"));
