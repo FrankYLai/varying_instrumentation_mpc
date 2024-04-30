@@ -5,9 +5,9 @@ close all;
 addpath(genpath(pwd));
 
 configs = containers.Map;
-configs("scene") = 1;
+configs("scene") = 2;
 configs("tracking") = "none";
-configs("save_name") = "scene1none.mat";
+configs("save_name") = "scene2None.mat";
 
 
 if configs("scene") == 0
@@ -35,6 +35,7 @@ step = true;
 save_paths = [];
 save_u = [];
 save_pose = [];
+b = 0
 
 
 while not_completed(car, configs("end"), map, obstacles)
@@ -61,6 +62,9 @@ while not_completed(car, configs("end"), map, obstacles)
     animate(configs, car, obstacles, map, path, t);
 
     t = t+dt;
+    if b
+        break
+    end
 
 end
 
@@ -72,12 +76,12 @@ save(configs("save_name"));
 function ncomp = not_completed(car, end_pos, map, obstacles)
     ncomp = norm(car.q(1:2)-end_pos)>0.3;
     obs = [map, obstacles];
-    for o = obs
-        if norm(car.q(1:2) - o.current_pose(1:2))< o.dims(1)+car.b
-            disp("collision detected")
-            ncomp = false;
-        end
-    end
+%     for o = obs
+%         if norm(car.q(1:2) - o.current_pose(1:2))< o.dims(1)+car.b
+%             disp("collision detected")
+%             ncomp = false;
+%         end
+%     end
 end
 
     

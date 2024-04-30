@@ -124,7 +124,7 @@ classdef MPC
             dists = sqrt(sum((pos_expanded(:,1:2) - centers).^2,2));
             obstacle_cost = (R+obj.safety+obj.edge) - dists;
             obstacle_cost = max(obstacle_cost,zeros(size(obstacle_cost,1),1)); %Relu
-            cost = cost+sum(obstacle_cost)*15;
+            cost = cost+sum(obstacle_cost)*25;
             
 
             % cost = cost_dist;
