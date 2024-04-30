@@ -36,7 +36,7 @@ classdef Car
             ub = [inf, inf, inf, obj.MAX_WHEEL_ROT_SPEED_RAD, obj.MAX_WHEEL_ROT_SPEED_RAD];
             lb_u = [obj.MIN_WHEEL_ROT_ACCEL_RAD, obj.MIN_WHEEL_ROT_ACCEL_RAD];
             ub_u = [obj.MAX_WHEEL_ROT_ACCEL_RAD, obj.MAX_WHEEL_ROT_ACCEL_RAD];
-            obj.mpc = MPC(lb, ub, lb_u, ub_u);   
+            obj.mpc = MPC(obj.q, lb, ub, lb_u, ub_u);   
         end
         
         function dq = dynamics(obj, t, q, u)
@@ -54,24 +54,6 @@ classdef Car
             dq(4,:) = phi_ddot_L;
             dq(5,:) = phi_ddot_R;
         end
-
-        % function obj = set_wheel_velocity(obj, lw_speed, rw_speed) %sets wheel speed for right and left wheels
-            
-        %     obj.wheel_speed = [
-        %         rw_speed;
-        %         lw_speed
-        %     ];
-        %     obj.x_dot = obj.forward_kinematics();
-        % end
-        
-        % function obj = set_robot_velocity(obj, linear_velocity, angular_velocity)
-        %     obj.x_dot = [
-        %         linear_velocity;
-        %         0;
-        %         angular_velocity
-        %     ];
-        %     obj.wheel_speed = obj.inverse_kinematics();
-        % end
         
         function obj = update_state(obj, u, t)
             dynamics = @(t,q) obj.dynamics(t, q, u);
@@ -79,36 +61,7 @@ classdef Car
             x = yout(end,:);
             obj.q = x;
         end
-        
-        % function obj = update(obj, dt)
-        %     obj.wheel_speed(obj.wheel_speed > obj.MAX_WHEEL_ROT_SPEED_RAD) = obj.MAX_WHEEL_ROT_SPEED_RAD;
-        %     obj.wheel_speed(obj.wheel_speed < obj.MIN_WHEEL_ROT_SPEED_RAD) = obj.MIN_WHEEL_ROT_SPEED_RAD;
-        %     obj.x_dot = obj.forward_kinematics();
-        %     obj.x = obj.update_state(dt);
-        %     obj.wheel_speed = obj.inverse_kinematics();
-        % end
-        
-        % function state = get_state(obj)
-        %     state = {obj.x, obj.x_dot};
-        % end
-        
-        % function kine = forward_kinematics(obj)
-        %     kine_mat = [
-        %         obj.r/2         , obj.r/2;
-        %         0               , 0;
-        %         obj.r/(2*obj.b), -obj.r/(2*obj.b)
-        %     ];
-        %     kine = kine_mat*obj.wheel_speed;
-        % end
-        
-        % function ikine = inverse_kinematics(obj)
-        %     ikine_mat = [
-        %         1/obj.r, 0, obj.b/obj.r;
-        %         1/obj.r, 0, -obj.b/obj.r
-        %     ];
-        %     ikine = ikine_mat*obj.x_dot;
-        % end
-        
+
         function car_points = get_points(obj, X, Y, Theta)
             car_points = cell(numel(X),1);
             for i = 1:numel(X)
@@ -124,15 +77,6 @@ classdef Car
             end
 
         end
-        
-        % function obj = control_acceleration(obj, desired_acceleration, dt)
-        %     current_velocity = obj.x_dot(1);
-        %     if desired_acceleration >= 0
-        %         obj.x_dot(1) = current_velocity + desired_acceleration * dt;
-        %     else
-        %         obj.x_dot(1) = max(0, current_velocity + desired_acceleration * dt); % Ensure velocity doesn't go negative
-        %     end
-        % end
         
         function obj = step(obj, u, dt, Ts)
             % Ensure that the wheel accelerations are within the limits

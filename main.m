@@ -5,8 +5,9 @@ close all;
 addpath(genpath(pwd));
 
 configs = containers.Map;
-configs("scene") = 0;
+configs("scene") = 3;
 configs("tracking") = "full";
+configs("save_name") = "scene3_full.mat";
 
 
 if configs("scene") == 0
@@ -15,6 +16,8 @@ elseif configs("scene") == 1
     [obstacles, map, configs] = setup_scene1(configs);
 elseif configs("scene") == 2
     [obstacles, map, configs] = setup_scene2(configs);
+elseif configs("scene") == 3
+    [obstacles, map, configs] = setup_scene3(configs);
 else
     disp("please provide a scene description")
 end
@@ -26,7 +29,15 @@ costs = [0];
 % start simulation
 tic;
 dt = 0.1;
-for t = 0:dt:10000
+t = 0;
+step = true;
+
+save_paths = [];
+save_u = [];
+save_pose = [];
+
+
+while not_completed(car, configs("end"))
     t
     %update obstacle position
 
@@ -34,32 +45,30 @@ for t = 0:dt:10000
         obstacles(i) = obstacles(i).updatePose(t);
     end
     
-    %reference only collision logic
-    % cost = car.cost_dist(map, obstacles);
-    % [cross_section, collision_objs] = car.checkCollision(map, obstacles);
-%     [raccel, laccel] = keyboard_accel_control();
+    %update car position
     [u, path] = car.optimize(configs('end'), map, obstacles);
+    
+    if step
+        car = car.step(u, car.mpc.dt, dt);
+    end
 
-    car = car.step(u, car.mpc.dt, dt);
+    save_paths(:,:,end+1) = path;
+    save_u(:,:,end+1) = u;
+    save_pose(:,:,end+1) = car.q;
 
-    % if cross_section>0
-    %     % figure(2)
-    %     % plot(collision_objs)
-    %     % axis(configs("canvas"));
-    %     disp("collision detected");
-    % end
-    % costs = [costs, cost];
-    % figure(3)
-    % plot(costs)
 
     figure(1)
     animate(configs, car, obstacles, map, path, t);
 
-    %obstacle representation debugging purposes only
-    % figure(2)
-    % show(configs("obsList"));
-    % axis(configs("canvas"));
+    t = t+dt;
 
 end
 
 toc
+
+save(configs("save_name"));
+
+
+function ncomp = not_completed(car, end_pos)
+    ncomp = norm(car.q(1:2)-end_pos)>0.3;
+end

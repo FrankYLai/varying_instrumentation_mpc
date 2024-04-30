@@ -13,7 +13,7 @@ classdef Obstacle
         
         gen_verticies
         pose
-        predict_pose
+        tracking
     end
     
     methods
@@ -54,14 +54,7 @@ classdef Obstacle
         end
 
         %pose tracking function:
-        if tracking == "full"
-            obj.predict_pose = @obj.predict_pose_full;
-        elseif tracking == "simple"
-            obj.predict_pose = @obj.predict_pose_simple;
-        else
-            obj.predict_pose = @obj.predict_pose_none;
-        end
-      
+        obj.tracking = tracking;
       end
      
       %run to update the position of an obstacle
@@ -70,26 +63,15 @@ classdef Obstacle
           pose_update = obj.pose(obj, obj.t);
           obj.current_pose = pose_update;
       end
-
-      function pose = predict_pose_full(obj,dt)
-            pose = obj.pose(obj, obj.t+dt);
-      end
       
-      function pose = predict_pose_simple(obj,dt)
-        h = 0.05
-        pose_old = obj.pose(obj, obj.t-h);
-        diff = obj.current_pose - pose_old;
-        dx = diff(1)/h;
-        dy = diff(2)/h;
-        dtheta = diff(3)/h;
-
-        pose = [dx*dt + obj.current_pose(1), 
-                dy*dt + obj.current_pose(2), 
-                dtheta*dt + obj.current_pose(3)];
-      end
-
-      function pose = predict_pose_none(obj, dt)
-        pose = obj.current_pose;
+      function pose = predict_pose(obj, dt)
+        if obj.tracking == "full"
+            pose = obj.predict_pose_full(obj, dt);
+        elseif obj.tracking == "simple"
+            pose = obj.predict_pose_simple(obj, dt);
+        else
+            pose = obj.predict_pose_none(obj, dt);
+        end
       end
       
     end
@@ -98,6 +80,28 @@ classdef Obstacle
       %generic pose update(no movement)
       function pose = static_pose(obs, t)
           pose = obs.initial_pose;
+      end
+      
+      %pose prediction
+      function pose = predict_pose_full(obj,dt)
+            pose = obj.pose(obj, obj.t+dt);
+      end
+      
+      function pose = predict_pose_simple(obj,dt)
+        h = 0.1;
+        pose_old = obj.pose(obj, obj.t-h);
+        diff = obj.current_pose - pose_old;
+        dx = diff(1)/h;
+        dy = diff(2)/h;
+        dtheta = diff(3)/h;
+
+        pose = [dx*dt + obj.current_pose(1), ...
+                dy*dt + obj.current_pose(2), ...
+                dtheta*dt + obj.current_pose(3)];
+      end
+
+      function pose = predict_pose_none(obj, dt)
+        pose = obj.pose(obj, obj.t);
       end
       
       %verticies generator
