@@ -5,8 +5,8 @@ classdef MPC
         N_states = 26;    % Number of states
         N_vals = 5;
         N_inputs = 2;
-        safety = 0.5;
-        edge = 2.5;
+        safety = 0.7;
+        edge = 2.3;
         
         dt;
         w;
@@ -71,11 +71,11 @@ classdef MPC
             temp_w = obj.set_w(car.q);
             % Solve the optimization problem
             [w, FVAL, flag] = fmincon(cost_func_handle, temp_w, [], [], [], [], obj.LB, obj.UB, nonlcon, obj.optim_options);
-%             if flag == 0
-%                 disp("Optimization did not converge, retrying with different initial conditions")
+            if flag == 0
+                disp("Optimization did not converge, retrying with different initial conditions")
 %                 temp_w = obj.set_w(car.q);
 %                 [w, FVAL, flag] = fmincon(cost_func_handle, temp_w, [], [], [], [], obj.LB, obj.UB, nonlcon, obj.optim_options);
-%             end
+            end
             obj.w = w;
             % Return the optimal control input and the optimal trajectory
 

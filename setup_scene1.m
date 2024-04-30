@@ -1,41 +1,43 @@
 function [obstacles, map, config_updated] = setup_scene1(configs)
     config_updated = configs;
     %define start and end point
-    config_updated("start") = [-10,0,0];
-    config_updated("end") = [10,0];
+    config_updated("start") = [-12,-10,0];
+    config_updated("end") = [8,10];
 
     %define canvas size
-    canvas = [-12 12 -10 10];
+    canvas = [-14 14 -12 12];
     config_updated("canvas") = canvas;
     
 
-    stat_obs1 = Obstacle(1,[4,0,pi/2],'rectangle',[7,1],[]);
-    stat_obs2 = Obstacle(2,[-7,-6,0],'rectangle',[12,1],[]);
-    stat_obs3 = Obstacle(3,[-7,6,0],'rectangle',[12,1],[]);
+    stat_obs3 = Obstacle(1,[0,107,0],'circle',[100,100],[], configs("tracking"));
+    stat_obs1 = Obstacle(1,[0,-107,0],'circle',[100,100],[], configs("tracking"));
+%     stat_obs1 = Obstacle(1,[4,0,pi/2],'rectangle',[7,1],[], configs("tracking"));
     
     %add static obstacles to list
-    map = [stat_obs1, stat_obs2, stat_obs3];
+    map = [stat_obs3, stat_obs1];
+    map = [];
+
 
 
     %setup obstacles
-    obs1 = Obstacle(4,[-8,0,0],'circle',[0.25],@obs1_pose);
-    obs2 = Obstacle(5,[-1,0,0],'circle',[0.25],@obs2_pose);
-%     obs3 = Obstacle("circle_example",[6,-6,0],'circle',[0.3],NaN);
-%     obs4 = Obstacle("triangle_example",[5,6,pi/2],'triangle',[0.3,0.4],NaN);
+%     obs1 = Obstacle(4,[0,0,0],'circle',[3, 3],@obs1_pose, configs("tracking"));
+    obs1 = Obstacle(4,[-7,-3,0],'circle',[2, 2],@obs1_pose, configs("tracking"));
+    obs2 = Obstacle(4,[7,5,0],'circle',[2, 2],@obs2_pose, configs("tracking"));
     obstacles = [obs1, obs2];
-    
+%     obstacles = []
 
 end
 
 
 function pose = obs1_pose(obj, t)
-    diff = [0, 5.2*sin(t), 0];
+    diff = [2*t, 0, 0];
+
 
     pose = diff + obj.initial_pose;
 end
 
 function pose = obs2_pose(obj, t)
-    diff = [0, -5.2*sin(t/2), 0];
+    diff = [-2*t, 0, 0];
 
     pose = diff + obj.initial_pose;
 end

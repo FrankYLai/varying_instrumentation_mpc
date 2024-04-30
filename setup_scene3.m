@@ -14,6 +14,7 @@ function [obstacles, map, config_updated] = setup_scene3(configs)
     
     %add static obstacles to list
     map = [stat_obs3, stat_obs1];
+    map = [];
 
 
 
